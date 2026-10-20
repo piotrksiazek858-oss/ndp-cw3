@@ -1,0 +1,58 @@
+#!/bin/bash
+
+koniec()
+{
+    echo
+    echo "Zakończono monitorowanie: $(date)"
+    exit 0
+}
+
+trap koniec SIGINT
+
+echo "Rozpoczęto monitorowanie."
+echo "Naciśnij Ctrl+C, aby zakończyć."
+
+while true
+do
+    aktualny_czas=$(date "+%Y-%m-%d %H:%M:%S")
+
+    cpu=$(LC_ALL=C top -l 1 -n 0 |
+        awk '/CPU usage:/ {
+            user=$3
+            system=$5
+            gsub("%", "", user)
+            gsub("%", "", system)
+            printf "%.1f%%", user + system
+        }')
+
+    statystyki=$(LC_ALL=C vm_stat)
+
+    file_backed=$(echo "$statystyki" |
+        awk '/File-backed pages/ {
+            gsub("\\.", "", $3)
+            print $3
+        }')
+
+    purgeable=$(echo "$statystyki" |
+        awk '/Pages purgeable/ {
+            gsub("\\.", "", $3)
+            print $3
+        }')
+
+    if [ -z "$file_backed" ] || [ -z "$purgeable" ]
+    then
+        echo "Błąd: nie udało się odczytać danych z vm_stat."
+        exit 1
+    fi
+
+    suma_stron=$((file_backed + purgeable))
+
+    pamiec_gb=$(awk -v strony="$suma_stron" \
+        'BEGIN {
+            printf "%.2f", (strony * 4096) / (1024^3)
+        }')
+
+    echo "$aktualny_czas | CPU: $cpu | Cache: $pamiec_gb GB"
+
+    sleep 1
+done

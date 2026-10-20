@@ -1,0 +1,29 @@
+#!/bin/bash
+
+LC_ALL=C date | {
+    read dzien_tygodnia miesiac dzien czas reszta
+
+    rok="${reszta##* }"
+
+    case "$miesiac" in
+        Jan) numer_miesiaca="01" ;;
+        Feb) numer_miesiaca="02" ;;
+        Mar) numer_miesiaca="03" ;;
+        Apr) numer_miesiaca="04" ;;
+        May) numer_miesiaca="05" ;;
+        Jun) numer_miesiaca="06" ;;
+        Jul) numer_miesiaca="07" ;;
+        Aug) numer_miesiaca="08" ;;
+        Sep) numer_miesiaca="09" ;;
+        Oct) numer_miesiaca="10" ;;
+        Nov) numer_miesiaca="11" ;;
+        Dec) numer_miesiaca="12" ;;
+        *)
+            echo "Nieznany miesiąc: $miesiac"
+            exit 1
+            ;;
+    esac
+
+    printf "%s-%s-%02d %s\n" \
+        "$rok" "$numer_miesiaca" "$dzien" "$czas"
+}

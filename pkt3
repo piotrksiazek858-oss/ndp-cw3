@@ -1,0 +1,23 @@
+#!/bin/bash
+
+IFS=,read a b
+
+if [ -z "$a" ] || [ -z "$b" ]
+then
+    echo "Nie podano obu liczb"
+    exit 1
+fi
+
+if [ "$a" -gt "$b" ]
+then
+    echo "$a jest większe"
+
+elif [ "$b" -gt "$a" ]
+then
+    echo "$b jest większe"
+
+else
+    echo "Liczby są równe"
+fi
+# to jest linia komentarza
+fi

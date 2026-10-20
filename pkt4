@@ -1,0 +1,19 @@
+#!/bin/bash
+
+for x in *
+do
+
+    if [ -f "$x" ]
+    then
+        echo "$x -> plik"
+
+    elif [ -d "$x" ]
+    then
+        echo "$x -> katalog"
+
+    elif [ -c "$x" ] || [ -b "$x" ]
+    then
+        echo "$x -> urządzenie"
+    fi
+
+done

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -f pkt1 ]
+then
+    echo "Plik pkt1 istnieje"
+fi
+
+if [ ! -f dane1 ]
+then
+    echo "Linia tekstu w danych1" > dane1
+fi

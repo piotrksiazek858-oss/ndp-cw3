@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Podaj tekst:"
+read tekst
+
+echo "Podaj liczbę:"
+read ile
+
+i=1
+
+while [ $i -le $ile ]
+do
+    echo "$tekst"
+    i=$((i+1))
+done

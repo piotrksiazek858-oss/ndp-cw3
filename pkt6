@@ -1,0 +1,39 @@
+#!/bin/bash
+
+while true
+do
+
+    echo "a,b,c,x lub liczba:"
+    read wybor
+
+    case $wybor in
+
+        a)
+            cat /dev/null > daty.log
+            ;;
+
+        b)
+            date >> daty.log
+            ;;
+
+        c)
+            cat daty.log
+            ;;
+
+        x)
+            exit 0
+            ;;
+
+        *)
+            i=1
+
+            while [ $i -le $wybor ] 2>/dev/null
+            do
+                date
+                i=$((i+1))
+            done
+            ;;
+
+    esac
+
+done

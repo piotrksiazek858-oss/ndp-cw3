@@ -1,0 +1,110 @@
+#!/bin/bash
+
+ROZMIAR_BLOKU=100
+LIMIT_MB=500
+KATALOG=""
+
+posprzataj()
+{
+    echo
+    echo "Przerwano działanie skryptu."
+
+    if [ -n "$KATALOG" ] && [ -d "$KATALOG" ]
+    then
+        echo "Usuwanie plików z katalogu: $KATALOG"
+        rm -rf "$KATALOG"
+    fi
+
+    echo "Pliki zostały usunięte."
+    echo "Zakończono: $(date)"
+    exit 0
+}
+
+trap posprzataj SIGINT SIGTERM
+
+if [ "$#" -ne 1 ]
+then
+    echo "Użycie: $0 liczba_MB"
+    echo "Przykład: $0 200"
+    exit 1
+fi
+
+if ! [[ "$1" =~ ^[0-9]+$ ]]
+then
+    echo "Błąd: podaj dodatnią liczbę całkowitą."
+    exit 1
+fi
+
+cel=$1
+
+if [ "$cel" -le 0 ]
+then
+    echo "Błąd: rozmiar musi być większy od zera."
+    exit 1
+fi
+
+if [ "$cel" -gt "$LIMIT_MB" ]
+then
+    echo "Błąd: bezpieczny limit wynosi $LIMIT_MB MB."
+    exit 1
+fi
+
+KATALOG=$(mktemp -d)
+
+if [ ! -d "$KATALOG" ]
+then
+    echo "Błąd: nie udało się utworzyć katalogu tymczasowego."
+    exit 1
+fi
+
+przydzielono=0
+numer=1
+
+echo "===================================="
+echo "       Zadanie ambitne nr 34"
+echo "===================================="
+echo "Katalog tymczasowy: $KATALOG"
+echo "Rozmiar docelowy: $cel MB"
+echo "Rozmiar bloku: $ROZMIAR_BLOKU MB"
+echo
+
+while [ "$przydzielono" -lt "$cel" ]
+do
+    pozostalo=$((cel - przydzielono))
+
+    if [ "$pozostalo" -lt "$ROZMIAR_BLOKU" ]
+    then
+        aktualny_blok=$pozostalo
+    else
+        aktualny_blok=$ROZMIAR_BLOKU
+    fi
+
+    echo "Tworzenie bloku $numer: $aktualny_blok MB"
+
+    if ! dd if=/dev/zero \
+        of="$KATALOG/blok_$numer.dat" \
+        bs=1M \
+        count="$aktualny_blok" \
+        status=none
+    then
+        echo "Błąd podczas tworzenia pliku."
+        rm -rf "$KATALOG"
+        exit 1
+    fi
+
+    przydzielono=$((przydzielono + aktualny_blok))
+
+    echo "Utworzono łącznie: $przydzielono z $cel MB"
+    echo
+
+    numer=$((numer + 1))
+done
+
+echo "Osiągnięto rozmiar docelowy: $przydzielono MB."
+echo "Pliki pozostają w katalogu tymczasowym."
+echo "Naciśnij Ctrl+C, aby je usunąć i zakończyć."
+
+while true
+do
+    sleep 1
+done
